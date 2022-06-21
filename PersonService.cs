@@ -17,6 +17,51 @@ namespace DapperLearn
     /// </summary>
     public class PersonService
     {
+        public bool DeleteDate(int personId)
+        {
+            using (IDbConnection dbConnection = new SqlConnection(DBHelper.ConnStrings))
+            {
+                string sql = "delete from Person where id = @Id";
+                
+                int result = dbConnection.Execute(sql, new {Id = personId}); //执行删除功能
+               
+                return result > 0;
+            }
+        }
+
+        /// <summary>
+        /// 根据id 更新数据的方法
+        /// </summary>
+        /// <param name="person"></param>
+        /// <returns></returns>
+        public bool UpdateDate(Person person)
+        {
+            using(IDbConnection dbConnection = new SqlConnection(DBHelper.ConnStrings))
+            {
+                //准备更新语句
+                string sql = "update Person set first_name= @first_name,last_name =@last_name, email= @email where id=@id  ";
+                //执行更新语句
+                int result = dbConnection.Execute(sql,person);
+
+                return result > 0;
+            }
+
+        }
+
+        /// <summary>
+        /// 根据id 查询数据内容
+        /// </summary>
+        /// <param name="personId"></param>
+        /// <returns></returns>
+        public Person FindByPersonId(int personId)
+        {
+            using (IDbConnection dbConnection = new SqlConnection(DBHelper.ConnStrings))
+            {
+                string sql = "select * from Person where id = @id";
+                IEnumerable<Person> persons = dbConnection.Query<Person>(sql, new { id = personId }); //执行查询功能
+                return persons.FirstOrDefault();//返回序列中的第一个元素
+            }
+        }
 
         /// <summary>
         /// 根据用户查询用户集合
@@ -47,6 +92,37 @@ namespace DapperLearn
                 IEnumerable<Person> lst = db.Query<Person>(sql, new { Lastname =lastname });
 
                 return lst.ToList();//转化为List的类型返回
+            }
+        }
+
+        /// <summary>
+        /// 向数据库插入数据
+        /// </summary>
+        /// <param name="person"></param>
+        /// <returns></returns>
+        public bool InsertData(Person person)
+        {
+            using (IDbConnection dbConnection = new SqlConnection(DBHelper.ConnStrings))
+            {
+                //准备插入 的SQL语句
+                string sql = "insert into Person( first_name, last_name, email, time) values ( @first_name, @last_name, @email, @time )";
+
+                //调用Dapper中的IDbconnction的拓展方法Excute()来执行插入
+                int result = dbConnection.Execute(sql, person);//第一个参数SQL语句 第二个参数据Person对象
+
+                //bool sucess= true;//默认为true
+
+                //if (result > 0)
+                //{
+                //    sucess = true;
+                //}
+                //else
+                //{
+                //   sucess= false;
+                //}
+
+                return result > 0;
+
             }
         }
     }
